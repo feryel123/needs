@@ -1,0 +1,245 @@
+public ArrayList<String> genBack(DbInfoBean db, String req,Connection conn,String lbl){
+
+
+    ArrayList<String> tabs = new ArrayList<String>();
+    ArrayList<String> queries = new ArrayList<String>();
+   // System.out.println(db.getType());
+    ArrayList<String> command = new ArrayList<String>();
+    command.add("cd applications/back ");
+    command.add("mkdir " + db.getNom_projet() + " ");
+    command.add("cd " + db.getNom_projet() + " ");
+   /* command.add("roo project setup --topLevelPackage " + db.getGroup() + " --projectName " + db.getNom_projet() + " --packaging " + db.getPackaging() + " --java 8 ");
+    command.add("roo jpa setup --provider HIBERNATE --database " + db.getType() + " --userName " + db.getUsername() + " --password " + db.getPassword() + " ");
+*/
+ command.add("spring init --build maven --name "+db.getNom_projet() +" --groupId com.exemple --artifactId "+db.getArtifact()+"  --description "+db.getDescription()+" --packaging "+db.getPackaging()+" --java-version "+db.getVersion_java()+" --dependencies "+db.getDependencies()+" --extract ");
+                command.add("echo spring.datasource.url = "+db.getUrl()+" >> src/main/resources/application.properties ");
+				command.add("echo spring.datasource.username = "+db.getUsername()+" >> src/main/resources/application.properties ");
+				command.add("echo spring.datasource.password = "+db.getPassword()+" >> src/main/resources/application.properties ");
+                command.add("cd src\\main\\java\\com\\exemple\\"+db.getArtifact()+" ");
+                command.add("mkdir Model ");
+                command.add("mkdir Repository ");
+                command.add("mkdir Controller");
+				command.add("mkdir Exception");
+try {
+
+    Statement stmt = conn.createStatement();
+    String q = req;
+    ResultSet r = stmt.executeQuery(q);
+
+
+    while (r.next()) {
+        String n = r.getString(lbl);
+        tabs.add(n);
+    }
+
+    for (int i = 0; i < tabs.size(); i++) {
+        String query = "Select * from " + tabs.get(i);
+        queries.add(query);
+    }
+
+    for (int j = 0; j < queries.size(); j++) {
+        //Executing the query
+        System.out.println(queries.get(j));
+        Statement stmt1 = conn.createStatement();
+        ResultSet rs = stmt1.executeQuery(queries.get(j));
+
+        //command.add("roo entity jpa --class ~.Model." + tabs.get(j) + " ");
+		t=tabs.get(j);
+		//////////Exception
+		
+		command.add("echo import org.springframework.http.HttpStatus; > Exception/ResourceNotFoundException.java ");
+command.add("echo import org.springframework.web.bind.annotation.ResponseStatus; >> Exception/ResourceNotFoundException.java ");
+
+command.add("echo @ResponseStatus(value = HttpStatus.NOT_FOUND) >> Exception/ResourceNotFoundException.java ");
+command.add("echo public class ResourceNotFoundException extends Exception{ >> Exception/ResourceNotFoundException.java ");
+
+command.add("echo    private static final long serialVersionUID = 1L; >> Exception/ResourceNotFoundException.java ");
+
+command.add("echo    public ResourceNotFoundException(String message){ >> Exception/ResourceNotFoundException.java ");
+command.add("echo       super(message); >> Exception/ResourceNotFoundException.java ");
+command.add("echo    } >> Exception/ResourceNotFoundException.java ");
+command.add("echo } >> Exception/ResourceNotFoundException.java ");
+
+command.add("echo import java.util.Date; > Exception/ErrorDetails.java ");
+
+command.add("echo public class ErrorDetails { >> Exception/ErrorDetails.java ");
+command.add("echo     private Date timestamp; >> Exception/ErrorDetails.java ");
+command.add("echo     private String message; >> Exception/ErrorDetails.java ");
+command.add("echo     private String details; >> Exception/ErrorDetails.java ");
+
+command.add("echo     public ErrorDetails(Date timestamp, String message, String details) { >> Exception/ErrorDetails.java ");
+command.add("echo         super(); >> Exception/ErrorDetails.java ");
+command.add("echo         this.timestamp = timestamp; >> Exception/ErrorDetails.java ");
+command.add("echo         this.message = message; >> Exception/ErrorDetails.java ");
+command.add("echo         this.details = details; >> Exception/ErrorDetails.java ");
+command.add("echo     } >> Exception/ErrorDetails.java ");
+
+command.add("echo     public Date getTimestamp() { >> Exception/ErrorDetails.java ");
+command.add("echo         return timestamp; >> Exception/ErrorDetails.java ");
+command.add("echo     } >> Exception/ErrorDetails.java ");
+
+command.add("echo     public String getMessage() { >> Exception/ErrorDetails.java ");
+command.add("echo          return message; >> Exception/ErrorDetails.java ");
+command.add("echo     } >> Exception/ErrorDetails.java ");
+
+command.add("echo     public String getDetails() { >> Exception/ErrorDetails.java ");
+command.add("echo          return details; >> Exception/ErrorDetails.java ");
+command.add("echo     } >> Exception/ErrorDetails.java ");
+command.add("echo } >> Exception/ErrorDetails.java ");
+
+
+command.add("echo import java.util.Date; > Exception/GlobalExceptionHandler.java ");
+
+command.add("echo import org.springframework.http.HttpStatus; >> Exception/GlobalExceptionHandler.java ");
+command.add("echo import org.springframework.http.ResponseEntity; >> Exception/GlobalExceptionHandler.java ");
+command.add("echo import org.springframework.web.bind.annotation.ControllerAdvice; >> Exception/GlobalExceptionHandler.java ");
+command.add("echo import org.springframework.web.bind.annotation.ExceptionHandler; >> Exception/GlobalExceptionHandler.java ");
+command.add("echo import org.springframework.web.context.request.WebRequest; >> Exception/GlobalExceptionHandler.java ");
+
+command.add("echo @ControllerAdvice >> Exception/GlobalExceptionHandler.java ");
+command.add("echo public class GlobalExceptionHandler { >> Exception/GlobalExceptionHandler.java ");
+command.add("echo     @ExceptionHandler(ResourceNotFoundException.class) >> Exception/GlobalExceptionHandler.java ");
+command.add("echo     public ResponseEntity<?> resourceNotFoundException(ResourceNotFoundException ex, WebRequest request) { >> Exception/GlobalExceptionHandler.java ");
+command.add("echo          ErrorDetails errorDetails = new ErrorDetails(new Date(), ex.getMessage(), request.getDescription(false)); >> Exception/GlobalExceptionHandler.java ");
+command.add("echo          return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND); >> Exception/GlobalExceptionHandler.java ");
+command.add("echo     } >> Exception/GlobalExceptionHandler.java ");
+
+command.add("echo     @ExceptionHandler(Exception.class) >> Exception/GlobalExceptionHandler.java ");
+command.add("echo     public ResponseEntity<?> globleExcpetionHandler(Exception ex, WebRequest request) { >> Exception/GlobalExceptionHandler.java ");
+command.add("echo         ErrorDetails errorDetails = new ErrorDetails(new Date(), ex.getMessage(), request.getDescription(false)); >> Exception/GlobalExceptionHandler.java ");
+command.add("echo         return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR); >> Exception/GlobalExceptionHandler.java ");
+command.add("echo     } >> Exception/GlobalExceptionHandler.java ");
+command.add("echo } >> Exception/GlobalExceptionHandler.java ");
+		/////////Controller
+		command.add("echo import java.util.HashMap; > Controller/"+t+"Controller.java ");
+command.add("echo import java.util.List;>> Controller/"+t+"Controller.java ");
+command.add("echoimport java.util.Map;>> Controller/"+t+"Controller.java ");
+
+command.add("echo import javax.validation.Valid; >> Controller/"+t+"Controller.java ");
+
+command.add("echo import org.springframework.beans.factory.annotation.Autowired; >> Controller/"+t+"Controller.java ");
+command.add("echo import org.springframework.http.ResponseEntity; >> Controller/"+t+"Controller.java ");
+command.add("echo import org.springframework.web.bind.annotation.DeleteMapping; >> Controller/"+t+"Controller.java ");
+command.add("echo import org.springframework.web.bind.annotation.GetMapping; >> Controller/"+t+"Controller.java ");
+command.add("echo import org.springframework.web.bind.annotation.PathVariable; >> Controller/"+t+"Controller.java ");
+command.add("echo import org.springframework.web.bind.annotation.PostMapping; >> Controller/"+t+"Controller.java ");
+command.add("echo import org.springframework.web.bind.annotation.PutMapping; >> Controller/"+t+"Controller.java ");
+command.add("echo import org.springframework.web.bind.annotation.RequestBody; >> Controller/"+t+"Controller.java ");
+command.add("echo import org.springframework.web.bind.annotation.RequestMapping; >> Controller/"+t+"Controller.java ");
+command.add("echo import org.springframework.web.bind.annotation.RestController; >> Controller/"+t+"Controller.java ");
+
+/*import net.guides.springboot2.springboot2jpacrudexample.exception.ResourceNotFoundException; >> Controller/"+t+"Controller.java ");
+import net.guides.springboot2.springboot2jpacrudexample.model.Employee; >> Controller/"+t+"Controller.java ");
+import net.guides.springboot2.springboot2jpacrudexample.repository.EmployeeRepository;*/
+
+command.add("echo @RestController @CrossOrigin(origins = \"http://localhost:4200\") >> Controller/"+t+"Controller.java ");
+command.add("echo @RequestMapping(\"/api/v1\") >> Controller/"+t+"Controller.java ");
+command.add("echo public class "+t+"Controller {>> Controller/"+t+"Controller.java ");
+command.add("echo 	@Autowired >> Controller/"+t+"Controller.java ");
+command.add("echo 	private "+t+"Repository "+t+"Repository;>> Controller/"+t+"Controller.java ");
+
+command.add("echo    @GetMapping(\"/+t+"s\")>> Controller/"+t+"Controller.java ");
+command.add("echo    public List\"<\""+t+"\">\" getAll"+t+"s() {>> Controller/"+t+"Controller.java ");
+command.add("echo        return "+t+"Repository.findAll();>> Controller/"+t+"Controller.java ");
+command.add("echo    }>> Controller/"+t+"Controller.java ");
+
+command.add("echo    @GetMapping(\"/"+t+"s/{id}\")>> Controller/"+t+"Controller.java ");
+command.add("echo    public ResponseEntity\"<\"+t+"\">\" get"+t+"ById(@PathVariable(value = \"id\") Long Id)>> Controller/"+t+"Controller.java ");
+command.add("echo        throws ResourceNotFoundException { >> Controller/"+t+"Controller.java ");
+command.add("echo        "+t+" "+t+" = "+t+"Repository.findById(Id) >> Controller/"+t+"Controller.java ");
+command.add("echo          .orElseThrow(() -> new ResourceNotFoundException(\" not found for this id :: \" + Id)); >> Controller/"+t+"Controller.java ");
+command.add("echo        return ResponseEntity.ok().body("+t"); >> Controller/"+t+"Controller.java ");
+command.add("echo    } >> Controller/"+t+"Controller.java ");
+    
+command.add("echo    @PostMapping(\"/"+t+"s\") >> Controller/"+t+"Controller.java ");
+command.add("echo    public "+t+" create"+t+"(@Valid @RequestBody "+t+" "+t+") { >> Controller/"+t+"Controller.java ");
+command.add("echo        return "+t+"Repository.save("+t+"); >> Controller/"+t+"Controller.java ");
+command.add("echo    } >> Controller/"+t+"Controller.java ");
+
+/*command.add("echo    @PutMapping(\"/"+t+"s/{id}") >> Controller/"+t+"Controller.java ");
+command.add("echo    public ResponseEntity\"<\"+t+"\">\" update"+t+"(@PathVariable(value = "id") Long Id, >> Controller/"+t+"Controller.java ");
+command.add("echo         @Valid @RequestBody "+t+" "+t+"Details) throws ResourceNotFoundException { >> Controller/"+t+"Controller.java ");
+command.add("echo        "+t+" "+t+" = "+t+"Repository.findById(Id) >> Controller/"+t+"Controller.java ");
+command.add("echo        .orElseThrow(() -> new ResourceNotFoundException(\"not found for this id :: \" + Id)); >> Controller/"+t+"Controller.java ");
+
+command.add("echo        employee.setEmailId(employeeDetails.getEmailId()); 
+command.add("echo       employee.setLastName(employeeDetails.getLastName());
+command.add("echo        employee.setFirstName(employeeDetails.getFirstName());
+command.add("echo        final Employee updatedEmployee = employeeRepository.save(employee);
+command.add("echo        return ResponseEntity.ok(updatedEmployee);
+command.add("echo    }*/
+
+command.add("echo    @DeleteMapping(\"/"+t+"s/{id}\") >> Controller/"+t+"Controller.java ");
+command.add("echo    public Map<String, Boolean> delete(@PathVariable(value = "id") Long Id) >> Controller/"+t+"Controller.java ");
+command.add("echo         throws ResourceNotFoundException { >> Controller/"+t+"Controller.java ");
+command.add("echo        "+t+" "+t+" = "+t+"Repository.findById(Id) >> Controller/"+t+"Controller.java ");
+command.add("echo       .orElseThrow(() -> new ResourceNotFoundException(\" not found for this id :: \" + Id)); >> Controller/"+t+"Controller.java ");
+
+command.add("echo        "+t+"Repository.delete("+t+"); >> Controller/"+t+"Controller.java ");
+command.add("echo        Map<String, Boolean> response = new HashMap<>(); >> Controller/"+t+"Controller.java ");
+command.add("echo        response.put("deleted", Boolean.TRUE); >> Controller/"+t+"Controller.java ");
+command.add("echo        return response; >> Controller/"+t+"Controller.java ");
+command.add("echo    } >> Controller/"+t+"Controller.java ");
+command.add("echo } >> Controller/"+t+"Controller.java ");
+		//////////////Repository
+		command.add("echo import org.springframework.data.repository.CrudRepository; > Repository/"+t+"Repository.java ");
+        command.add("echo public interface "+t+"Repository extends JpaRepository\"<\""+t+",Long\">\" { } >> Repository/"+t+"Repository.java ");
+					command.add( "echo @NoArgsConstructor >> Model/"+t+".java ");
+					   command.add( "echo @AllArgsConstructor >> Model/"+t+".java ");
+					   command.add( "echo @Getter >> Model/"+t+".java ");
+					   command.add( "echo @Setter >> Model/"+t+".java ");
+					   command.add( "echo @Entity >> Model/"+t+".java ");
+					   command.add( "echo @Table(name = \""+t+"\") >> Model/"+t+".java ");
+                        command.add  ("echo public class "+t+" { >>  Model/"+t+".java" );
+						command.add("echo @Id >> Model/"+t+".java " );
+                       
+					   command.add("echo  @GeneratedValue(strategy=GenerationType.AUTO) >> Model/"+t+".java");
+					   command.add("echo private long id; >> Model/"+t+".java ");
+        ResultSetMetaData resultSetMetaData = rs.getMetaData();
+        //Current record details.
+        for (int x = 2; x < resultSetMetaData.getColumnCount(); x++) {
+            String ye, m, t;
+			
+            ye = resultSetMetaData.getColumnTypeName(x).toUpperCase();
+           att = resultSetMetaData.getColumnName(x);
+
+            if (ye.equals("INT4")||ye.equals("INT")) {
+                ye = "int";
+            } else if (ye.equals("VARCHAR") || ye.equals("BPCHAR") || ye.equals("VARCHAR2") || ye.equals("CHAR") || ye.equals("TEXT")) {
+                ye = "string";
+            }else if(ye.equals("FLOAT")){
+				ye= "long";
+			}
+			/// create Model
+			
+			    command.add("echo import javax.persistence.Entity;import javax.persistence.GeneratedValue;import javax.persistence.GenerationType;import javax.persistence.Id; > Model/"+t+".java ");
+                     
+                        
+                        command.add("echo private"+ ye+" "+att"; >> Model/"+t+".java ");
+			
+        /*    if (m.equals("INT4")||m.equals("INT")) {
+                m = "java.lang.Integer";
+            } else if (m.equals("FLOAT")) {
+                m = "java.lang.Float";
+            } else if (m.equals("DATE")) {
+                m = "java.lang.Date";
+            }
+
+            if (ye.equals("string")) {
+                command.add("roo field " + ye + " --fieldName " + resultSetMetaData.getColumnName(x) + " --class ~.Model." + resultSetMetaData.getTableName(x) + " ");
+            } else {
+                command.add("roo field " + ye + " --fieldName " + resultSetMetaData.getColumnName(x) + " --class ~.Model." + resultSetMetaData.getTableName(x) + " --type " + m + " ");
+            }*/
+
+        }
+			command.add("echo } >> Model/"+t+".java ");
+    }
+	
+}catch (Exception e){
+    e.printStackTrace();
+}/*if (tabs.size()> 0){
+    command.add("roo repository jpa --all ");
+    command.add("roo service --all ");}
+    command.add("exit");
+    return command;
+}

@@ -1,0 +1,56 @@
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+
+@Component({
+  selector: 'app-general',
+  templateUrl: './general.component.html',
+  styleUrls: ['./general.component.scss']
+})
+export class GeneralComponent implements OnInit {
+
+  nom: any;
+  varChoix: any;
+  invaldname = false;
+  errorMessage = 'veuillez remplir les champs ';
+  
+
+  constructor(
+    private router: Router
+  ) { }
+
+  ngOnInit() {
+
+
+  }
+  choix() {
+    console.log(this.varChoix)
+    console.log(this.nom);
+
+  
+    if 
+      (this.varChoix == 'Back End' && this.nom !== "") 
+      
+      this.router.navigate(['general/back-config']);
+      
+      else if(this.varChoix == 'Front End'  && this.nom !== "")
+      
+      this.router.navigate(['general/front']);
+
+      else if ( this.varChoix == 'Front End & Back End'  && this.nom !== "")
+      
+      this.router.navigate(['general/app-config']);
+      
+     
+      else {
+
+        this.invaldname = true;
+        
+
+
+   
+    }
+    
+  }
+
+
+}

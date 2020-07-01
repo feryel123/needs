@@ -1,0 +1,38 @@
+version: '3.5'
+
+services:
+  db:
+    image: mariadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./init.sql:/data/init.sql
+    command: --init-file /data/init.sql
+    networks:
+      - ginkaku
+  ginkaku:
+    image: $GINKAKU_IMAGE
+    depends_on:
+      - "db"
+    environment:
+      SPRING_RABBITMQ_HOSTNAME: rabbitmq
+      SPRING_RABBITMQ_USERNAME: user
+      SPRING_RABBITMQ_PASSWORD: bitnami
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/ginkaku
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.mariadb.jdbc.Driver
+      SPRING_CLOUD_CONSUL_HOST: consul
+      SPRING_CLOUD_CONSUL_PORT: 8500
+      KYOTO_SERVER: 34.70.48.88
+    networks:
+      - kyoto
+      - ginkaku
+networks:
+  kyoto:
+    external:
+      name: kyoto
+  ginkaku:
+    name: ginkaku
+    driver: "bridge"

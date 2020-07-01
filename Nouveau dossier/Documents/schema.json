@@ -1,0 +1,59 @@
+{
+Application-name:.............,
+version: 1.0,
+App-type: (Front / Back / Both),
+
+modules:[
+	{
+		Name:...............,
+		Type: (SpringBoot+version),
+		Group: (com.exemple.),
+		Artifact:.............,
+		Description:....................,
+		Packaging-type:(Jar),
+		Dependencies:{
+			GroupID:(org.springframework.boot),
+			ArtifactId:(spring-boot-starter-parent),
+			.
+			.
+			.
+	},
+	{
+		Name:...........,
+		Type:(Angular 8)
+	}
+
+],
+BD[
+	{
+		Type:[
+			SQl:{
+			SGBD:(PostgreSQL, MySQL, Oracle...),
+			Driver:............,
+			Dependencies:{
+				GroupID:..............,
+				ArtifactId:..............,
+			}
+
+			},
+			NoSQL{
+			NoSQL-DB:(Mongodb, Cassandra,...)
+			Dependencies:{
+				GroupID:............,
+				ArtifactId:..............,
+			}
+			}
+
+	}	
+],
+CI:{
+	outil:(Jenkinks,gitlab-CI),
+	path:(chemin de fichier générer)
+}
+CD:{
+	outil:(Ansible),
+	Environnement-cible:...........
+}
+
+}
+
